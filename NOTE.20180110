@@ -1,0 +1,20 @@
+#使用ffmpeg从视频流生成帧
+ffmpeg -i solidWhiteRight.mp4 frames_%03d.jpg -hide_banner
+#使用如下代码逐个检查帧，记录下车道线有问题的帧名称，单独在M5里进行调参
+imgDir = "./test_images/"
+imgFoldName = "frame"
+imgs = os.listdir(imgDir+imgFoldName)
+imgNum = len(imgs)
+scope = range(imgNum)[16:]
+for j in scope:
+    print(imgs[j])
+    img = mpimg.imread(imgDir+imgFoldName+"/"+imgs[j])
+    imgHoughlines = process_image(img)
+    plt.imshow(imgHoughlines)
+    plt.show()
+print(imgs)
+
+# 本次调参总结：
+  1. 由于霍夫变换里，即使max_gap已经很大（20），由于min_length值过大（30），导致左侧边缘线的霍夫变换直线个数为0，从而无法检测出车道线
+  2. 第21帧，左侧车道线进行霍夫变换后，average和extrapolate的直线偏离较大，需要重新考虑average的方法；当前是平均倾斜角和平均截距；
+  
